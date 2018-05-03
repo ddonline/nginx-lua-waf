@@ -1,0 +1,6 @@
+-- 浏览器UserAgent过滤
+-- 待匹配字符串示例：api-Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0
+-- 规则示例：^api-.*Firefox
+-- 注意，如果不指定主机头api，将对所有主机生效
+-- 
+(ApacheBench|HTTrack|harvest|audit|dirbuster|pangolin|nmap|sqln|-scan|hydra|Parser|libwww|BBBike|sqlmap|w3af|owasp|Nikto|fimap|havij|PycURL|zmeu|BabyKrokodil|netsparker|httperf|bench)

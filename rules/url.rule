@@ -1,0 +1,11 @@
+-- Url过滤
+-- 待匹配字符串示例：api-/test/index.html
+-- 规则示例：^api-/text/index\.html
+-- 注意，如果不指定主机头api，将对所有主机生效
+-- 
+\.(git|svn|htaccess|bash_history)
+\.(bak|inc|old|mdb|sql|backup|java|class|tgz|gz|tar|zip|rar)$
+(phpmyadmin|jmx-console|admin-console|jmxinvokerservlet)
+java\.lang
+/(attachments|upimg|images|css|uploadfiles|html|uploads|templets|static|template|data|inc|forumdata|upload|includes|cache|avatar)/(.*)\.(php|jsp)
+\.(svn|git|sql|bak)/

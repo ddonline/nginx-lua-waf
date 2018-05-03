@@ -1,0 +1,1 @@
+cc -g -O2 -Wall -fPIC --shared usertime.c -o usertime.so

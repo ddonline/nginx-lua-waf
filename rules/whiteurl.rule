@@ -1,0 +1,5 @@
+-- Url白名单
+-- 待匹配字符串示例：api-/test/index.html
+-- 规则示例：^api-/text/index\.html
+-- 注意，如果不指定主机头api，将对所有主机生效
+-- 

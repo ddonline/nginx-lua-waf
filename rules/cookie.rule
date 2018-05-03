@@ -1,0 +1,27 @@
+-- Cookie过滤
+-- 待匹配字符串示例：api-nc_sameSiteCookielax=true; nc_sameSiteCookiestrict=true; 
+--                  kod_user_language=zh_CN; kod_user_online_version=check-at-1523267590; 
+--                  kod_name=admin; kod_token=3e016b80ce1e7349ff371324a1c0f996, 
+--                  client: 192.168.158.1, server: api, request: "GET /index.html HTTP/1.1", 
+--                  host: "192.168.158.139"
+-- 规则示例：^api-.*kod_name=admin;
+-- 注意，如果不指定主机头api，将对所有主机生效
+-- 
+\.\./
+select.+(from|limit)
+(?:(union(.*?)select))
+sleep\((\s*)(\d*)(\s*)\)
+benchmark\((.*)\,(.*)\)
+base64_decode\(
+(?:from\W+information_schema\W)
+(?:(?:current_)user|database|schema|connection_id)\s*\(
+(?:etc\/\W*passwd)
+into(\s+)+(?:dump|out)file\s*
+group\s+by.+\(
+xwork.MethodAccessor
+(?:define|eval|file_get_contents|include|require|require_once|shell_exec|phpinfo|system|passthru|preg_\w+|execute|echo|print|print_r|var_dump|(fp)open|alert|showmodaldialog)\(
+(gopher|doc|php|glob|file|phar|zlib|ftp|ldap|dict|ogg|data)\:\/
+java\.lang
+\$_(GET|post|cookie|files|session|env|phplib|GLOBALS|SERVER)\[
+\<(iframe|script|body|img|layer|div|meta|style|base|object|input)
+(onmouseover|onerror|onload)\=
