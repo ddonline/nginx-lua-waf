@@ -29,16 +29,16 @@ Nginx-Lua-WAF拥有非常高的性能，在虚拟机中测试结果如下：
 ### 关闭waf时测试
 每秒处理14806次请求,处理单个请求平均3毫秒
 
-![20180503174007.png](http://192.168.2.214:88/20180503174007.png)
+![20180503174007.png](https://raw.githubusercontent.com/ddonline/nginx-lua-waf/master/other/20180503174007.png)
 ### 开启waf时测试
 (开启所有功能，因为有cc检测，将cc阈值设置为20000/60防止压测时被拦截)
 每秒处理9581次请求,处理单个请求平均5毫秒
 
-![20180503174354.png](http://192.168.2.214:88/20180503174354.png)
+![20180503174354.png](https://raw.githubusercontent.com/ddonline/nginx-lua-waf/master/other/20180503174354.png)
 ##### 可以看出启用waf后，Nginx性能依然非常高，近10k次的处理能力，能够满足任何业务场景的需要
 
 # Nginx-Lua-WAF处理流程
-![WAF处理流程.png](http://192.168.2.214:88/WAF%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B.png)
+![WAF.png](https://raw.githubusercontent.com/ddonline/nginx-lua-waf/master/other/WAF.png)
 
 # 安装部署
 ## 以CentOS 7为例
@@ -106,6 +106,4 @@ chmod a+x /usr/local/openresty/lualib/usertime.so
 # 致谢
 
 1. 感谢春哥开源的[openresty](https://openresty.org)
-1. 感谢unixhot开源的[waf](https://github.com/unixhot/waf)
-1. 感谢无闻开源的[macron](https://go-macaron.com/)和[peach](https://peachdocs.org/)
-1. 感谢lunny开源的[xorm](https://github.com/go-xorm/xorm)
+
