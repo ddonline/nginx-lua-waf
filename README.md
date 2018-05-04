@@ -83,6 +83,9 @@ firewall-cmd --reload  #重载防火墙，使配置生效
 02、编译模块usertime.so
 
 ```bash
+#usertime.c文件位于nginx-lua-waf/other/usertime.c
+#编译好的usertime.so位于nginx-lua-waf/other/usertime.so
+#如果平台和我的不一样建议自己编译usertime.so模块
 #安装依赖包
 yum -y install lua-devel
 #编译模块usertime.so
@@ -96,14 +99,61 @@ chmod a+x /usr/local/openresty/lualib/usertime.so
 03、部署Nginx-Lua-WAF
 
 ```
+#安装工具
+yum -y install unzip
+#下载Nginx-Lua-WAF
+wget https://github.com/ddonline/nginx-lua-waf/archive/master.zip
+#解压缩
+unzip master.zip  #解压后得到文件夹nginx-lua-waf-master
+#对文件夹重命名
+mv nginx-lua-waf-master nginx-lua-waf
+#将nginx-lua-waf文件夹复制到nginx/conf目录下
+cp -r nginx-lua-waf /usr/local/openresty/nginx/conf
 
+#在nginx.conf中添加配置
+vi /usr/local/openresty/nginx/conf/nginx.conf
+在http级别添加以下内容:
+    #nginx-lua-waf配置
+    lua_package_path "/usr/local/openresty/nginx/conf/nginx-lua-waf/?.lua;";
+    lua_shared_dict limit 100m;
+    #开启lua代码缓存功能
+    lua_code_cache on;
+    lua_regex_cache_max_entries 4096;
+    init_by_lua_file   /usr/local/openresty/nginx/conf/nginx-lua-waf/init.lua;
+    access_by_lua_file /usr/local/openresty/nginx/conf/nginx-lua-waf/access.lua;
+在server级别修改server_name:
+    #在每个vhost中(server级别)定义server_name时，建议设置一个以上的主机名，默认第一个将做为规则中的主机区别标志，例如
+    server_name  api api.test.com;
+    
+#修改config.lua中日志文件和规则文件路径和其它需要配置的项目
+vi /usr/local/openresty/nginx/conf/nginx-lua-waf/config.lua
+    config_log_dir = "/var/log/nginx",
+    config_rule_dir = "/usr/local/openresty/nginx/conf/nginx-lua-waf/rules",
+#修改日志目录权限,使nginx对目录可写
+mkdir -p /var/log/nginx/
+chmod o+w /var/log/nginx/
+#重载nginx使配置生效
+/usr/local/openresty/nginx/sbin/nginx -t  #检查配置文件语法是否正确
+/usr/local/openresty/nginx/sbin/nginx -s reload    #重载nginx
+#测试waf是否工作正常
+curl http://127.0.0.1/test.zip
+#若返回 "规则过滤测试" 字样，则说明waf已生效，url.rule中定义有规则阻止下载zip文件，此时/var/log/nginx/目录中应有类似2018-05-04_waf.log的JSON格式日志文件
+#若返回 404 说明waf未生效
 ```
 
-# 操作使用
-
+# 使用中注意事项
+1、waf配置文件：nginx-lua-waf/config.lua，各项配置均有注释说明
+2、使用前请检查过滤规则是否符合自己实际情况，根据实际增删条目，防止误伤
+3、规则文件除frequency.rule外全部为正则表达式，除frequency.rule、whiteip.rule、blackip.rule、whiteurl.rule外全部不区分大小写
+4、规则文件中以"--"开头的为注释内容，除最后一行外，不能留有空行，且结尾字符应为LF
+5、在用于生产环境时，可先将模式设置为jinghuashuiyue并检查拦截日志，确认有无误伤，该模式仅记录日志，不实际进行拦截(对IP黑名单和CC攻击过滤不适用，详见处理流程图)
+6、更新规则文件后，使用reload命令(/usr/local/openresty/nginx/sbin/nginx -s reload)使用配置生效，该命令不会中断服务，不建议使用restart
+7、部署过程中对openresty的安装使用的是默认选项，如果需要自定义，可以参考我的博文:[编译Nginx(OpenResty)支持Lua扩展](http://pdf.us/2018/03/19/742.html)
 
 
 # 致谢
 
 1. 感谢春哥开源的[openresty](https://openresty.org)
-
+2. 开源项目：https://github.com/xsec-lab/x-waf
+3. 开源项目：https://github.com/tluolovembtan/jsh_waf
+4. 开源项目：https://github.com/loveshell/ngx_lua_waf
