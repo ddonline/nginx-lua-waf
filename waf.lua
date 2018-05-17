@@ -214,7 +214,15 @@ function _M.post_attack_check()
             for k, v in pairs(POST_ARGS) do
                 local post_data = ""
                 if type(v) == "table" then
-                    post_data = ngx.var.server_name.."-"..table.concat(v, ", ")
+                    -- 重构table,解决“nvalid value (boolean) at index 1 in table for 'concat'”
+                    local tt={}
+                    for kk,vv in pairs(v) do
+                        if type(vv) ~= "boolean" then
+                            vv="-"
+                        end
+                        table.insert(tt,vv)
+                    end
+                    post_data = ngx.var.server_name.."-"..table.concat(tt, ",")
                 elseif type(v) == "boolean" then
                     post_data = ngx.var.server_name.."-"..k
                 else

@@ -48,7 +48,8 @@ function _M.get_rules(rules_path)
             for line in file_rule_name:lines() do
                 --在规则文件中可以使用lua模式的注释
                 if string.sub( line, 1, 2 ) ~= "--" then
-                    table.insert(t_rule, line)
+                    -- string.gsub(s, "^%s*(.-)%s*$", "%1") 去除字符串s两端的空格
+                    table.insert(t_rule, (string.gsub(line, "^%s*(.-)%s*$", "%1")))
                     ngx.log(ngx.INFO, string.format("规则名称:%s, 值:%s", rule_name, line))
                 end
             end
@@ -70,7 +71,14 @@ function _M.get_client_ip()
         CLIENT_IP = ngx.var.remote_addr
     end
     if CLIENT_IP == nil then
-        CLIENT_IP = ""
+        CLIENT_IP = "0.0.0.0"
+    end
+    -- 判断CLIENT_IP是否为table类型，table类型即获取到多个ip的情况
+    if type(CLIENT_IP) == "table" then
+        CLIENT_IP = table.concat(CLIENT_IP, ",")
+    end
+    if type(CLIENT_IP) ~= "string" then
+        CLIENT_IP = "0.0.0.0"
     end
     return CLIENT_IP
 end
@@ -90,17 +98,17 @@ function _M.log_record(config_log_dir, attack_type, url, data, ruletag)
     local client_IP = _M.get_client_ip()
     local user_agent = _M.get_user_agent()
     local server_name = ngx.var.server_name
-    local local_time = ngx.localtime()
+    local local_time = string.sub(ngx.localtime(),1,10).."T"..string.sub(ngx.localtime(),12,-1).."+08:00"
     local log_json_obj = {
-        来访IP = client_IP,
-        时间戳 = local_time,
-        URI = server_name,
-        UserAgent = user_agent,
-        过滤类型 = attack_type,
-        原始请求 = url,
-        请求URL = ngx.var.uri,
-        请求data = data,
-        规则标签 = ruletag,
+        realip = client_IP,
+        timestamp = local_time,
+        server = server_name,
+        agent = user_agent,
+        attack_type = attack_type,
+        urls = url,
+        url = ngx.var.uri,
+        postdata = data,
+        ruletag = ruletag,
     }
     local log_line = cjson.encode(log_json_obj)
     -- log_line = string.gsub(log_line,"\\\"","")   -- 去掉所有\"
