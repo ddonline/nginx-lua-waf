@@ -214,15 +214,22 @@ function _M.post_attack_check()
             for k, v in pairs(POST_ARGS) do
                 local post_data = ""
                 if type(v) == "table" then
-                    -- 重构table,解决“nvalid value (boolean) at index 1 in table for 'concat'”
-                    local tt={}
-                    for kk,vv in pairs(v) do
-                        if type(vv) ~= "boolean" then
-                            vv="-"
-                        end
-                        table.insert(tt,vv)
+                    -- 重构table,解决"invalid value (boolean) at index 1 in table for 'concat'"
+                    -- local tt={}
+                    -- for kk,vv in pairs(v) do
+                    --    if type(vv) ~= "boolean" then
+                    --        vv="-"
+                    --    end
+                    --    table.insert(tt,vv)
+                    -- end
+                    -- post_data = ngx.var.server_name.."-"..table.concat(tt, ",")
+                    --
+                    -- 修复错误 2018.08.20 invalid value (boolean) at index 1 in table for 'concat' 
+                    -- POST图片时 部分图片会触发
+                    if type(v[1]) == "boolean" then
+                       return false
                     end
-                    post_data = ngx.var.server_name.."-"..table.concat(tt, ",")
+                    post_data = ngx.var.server_name.."-"..table.concat(v, ", ")
                 elseif type(v) == "boolean" then
                     post_data = ngx.var.server_name.."-"..k
                 else
