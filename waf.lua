@@ -291,7 +291,7 @@ function _M.frequency_control_check()
                     local microsecond = utime.getmillisecond()
                     math.randomseed(tostring(microsecond):reverse():sub(1,12))
                     if math.random(0,9) >= tonumber(string.sub(rule,-1,-1)) then
-                        util.log_record(config.config_log_dir, '假数据', ngx.var.request_uri, "_", "_")
+                        util.log_record(config.config_log_dir, '假数据', ngx.var.request_uri, "_", rule)
                         ngx.header.content_type = "application/json" --text/html
                         ngx.header.content_length = #config.frequency_text
                         ngx.status = ngx.HTTP_OK
