@@ -40,7 +40,7 @@ function _M.white_ip_check()
             for _, rule in pairs(IP_WHITE_RULE) do
                 if rule ~= "" and rulematch(WHITE_IP, rule, "jo") then
                     -- 为优化性能 白名单不记录日志
-                    -- util.log_record(config.config_log_dir, '白名单IP', ngx.var_request_uri, "_", "_")
+                    -- util.log_record(config.config_log_dir, '白名单IP', ngx.var.request_uri, "_", "_")
                     return true
                 end
             end
@@ -57,7 +57,7 @@ function _M.black_ip_check()
         if IP_BLACK_RULE ~= nil then
             for _, rule in pairs(IP_BLACK_RULE) do
                 if rule ~= "" and rulematch(BLACK_IP, rule, "jo") then
-                    util.log_record(config.config_log_dir, '黑名单IP', ngx.var_request_uri, "_", rule)
+                    util.log_record(config.config_log_dir, '黑名单IP', ngx.var.request_uri, "_", rule)
                     ngx.exit(403)
                     return true
                 end
@@ -90,7 +90,7 @@ end
 function _M.white_url_check()
     if config.config_white_url_check == "on" then
         local URL_WHITE_RULES = _M.get_rule('whiteurl.rule')
-        local REQ_URI = ngx.var.server_name.."-"..ngx.var.uri
+        local REQ_URI = ngx.var.server_name.."-"..ngx.var.request_uri
         if URL_WHITE_RULES ~= nil then
             for _, rule in pairs(URL_WHITE_RULES) do
                 if rule ~= "" and rulematch(REQ_URI, rule, "joi") then
@@ -106,7 +106,7 @@ end
 function _M.url_attack_check()
     if config.config_url_check == "on" then
         local URL_RULES = _M.get_rule('url.rule')
-        local REQ_URI = ngx.var.server_name.."-"..ngx.var.uri
+        local REQ_URI = ngx.var.server_name.."-"..ngx.var.request_uri
         for _, rule in pairs(URL_RULES) do
             if rule ~= "" and rulematch(REQ_URI, rule, "joi") then
                 util.log_record(config.config_log_dir, '非法URL', ngx.var.request_uri, "-", rule)
@@ -123,7 +123,7 @@ end
 -- 使用共享存储limit
 function _M.cc_attack_check()
     if config.config_cc_check == "on" then
-        local ATTACK_URI = ngx.var.uri
+        local ATTACK_URI = ngx.var.request_uri
         local CC_TOKEN = ngx.var.server_name.."-"..util.get_client_ip() .."-"..ATTACK_URI
         local limit = ngx.shared.limit
         local CCcount = tonumber(string.match(config.config_cc_rate, '(.*)/'))
@@ -280,7 +280,7 @@ function _M.frequency_control_check()
     if config.frequency_control_check == "on" then
         local FREQUENCY_RULE = _M.get_rule('frequency.rule')
         -- 目标 api-192.168.123.33-index.html
-        local FREQUENCY_TAG = ngx.var.server_name.."-"..util.get_client_ip().."-"..ngx.var.uri
+        local FREQUENCY_TAG = ngx.var.server_name.."-"..util.get_client_ip().."-"..ngx.var.request_uri
         if FREQUENCY_RULE ~= nil then
             for _, rule in pairs(FREQUENCY_RULE) do
                 -- ngx.log(ngx.ERR, "错误1:FREQUENCY_TAG:" .. FREQUENCY_TAG) --api-192.168.158.1-/index.html
@@ -291,7 +291,7 @@ function _M.frequency_control_check()
                     local microsecond = utime.getmillisecond()
                     math.randomseed(tostring(microsecond):reverse():sub(1,12))
                     if math.random(0,9) >= tonumber(string.sub(rule,-1,-1)) then
-                        util.log_record(config.config_log_dir, '假数据', ngx.var_request_uri, "_", "_")
+                        util.log_record(config.config_log_dir, '假数据', ngx.var.request_uri, "_", "_")
                         ngx.header.content_type = "application/json" --text/html
                         ngx.header.content_length = #config.frequency_text
                         ngx.status = ngx.HTTP_OK
