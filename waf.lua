@@ -123,7 +123,8 @@ end
 -- 使用共享存储limit
 function _M.cc_attack_check()
     if config.config_cc_check == "on" then
-        local ATTACK_URI = ngx.var.request_uri
+        -- 对ngx.var.request_uri限制长度为最大40字符 避免key太长
+        local ATTACK_URI = string.sub(ngx.var.request_uri,1,40)
         local CC_TOKEN = ngx.var.server_name.."-"..util.get_client_ip() .."-"..ATTACK_URI
         local limit = ngx.shared.limit
         local CCcount = tonumber(string.match(config.config_cc_rate, '(.*)/'))
